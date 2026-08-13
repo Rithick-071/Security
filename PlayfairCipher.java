@@ -4,7 +4,7 @@ public class PlayfairCipher {
 
     static char[][] matrix = new char[5][5];
 
-    
+
     static void generateMatrix(String key) {
         key = key.toUpperCase().replaceAll("[^A-Z]", "");
         key = key.replace('J', 'I');
