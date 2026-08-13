@@ -1,78 +1,58 @@
 import java.util.*;
 
 public class PlayfairCipher {
-    private char[][] matrix = new char[5][5];
-    private String key;
-    private String plainText;
 
-    public PlayfairCipher(String key, String plainText) {
-        this.key = cleanKey(key);
-        this.plainText = cleanPlainText(plainText);
-        generateMatrix();
-    }
+    static char[][] matrix = new char[5][5];
 
-    private String cleanKey(String key) {
-        key = key.toUpperCase().replaceAll("[^A-Z]", "").replace('J', 'I');
-        boolean[] seen = new boolean[26];
-        StringBuilder sb = new StringBuilder();
-        
-        for (int i = 0; i < key.length(); i++) {
-            char c = key.charAt(i);
-            if (!seen[c - 'A']) {
-                seen[c - 'A'] = true;
-                sb.append(c);
-            }
-        }
-        return sb.toString();
-    }
+    
+    static void generateMatrix(String key) {
+        key = key.toUpperCase().replaceAll("[^A-Z]", "");
+        key = key.replace('J', 'I');
 
-    private void generateMatrix() {
-        boolean[] seen = new boolean[26];
-        seen['J' - 'A'] = true; 
-        
-        StringBuilder fullKey = new StringBuilder();
+        StringBuilder letters = new StringBuilder();
 
-        for (int i = 0; i < key.length(); i++) {
-            char c = key.charAt(i);
-            if (!seen[c - 'A']) {
-                seen[c - 'A'] = true;
-                fullKey.append(c);
+       
+        for (char c : key.toCharArray()) {
+            if (letters.indexOf(String.valueOf(c)) == -1) {
+                letters.append(c);
             }
         }
 
+       
         for (char c = 'A'; c <= 'Z'; c++) {
-            if (!seen[c - 'A']) {
-                fullKey.append(c);
-                seen[c - 'A'] = true;
+            if (c == 'J')
+                continue;
+
+            if (letters.indexOf(String.valueOf(c)) == -1) {
+                letters.append(c);
             }
         }
 
-        int idx = 0;
+        
+        int k = 0;
         for (int i = 0; i < 5; i++) {
             for (int j = 0; j < 5; j++) {
-                matrix[i][j] = fullKey.charAt(idx++);
+                matrix[i][j] = letters.charAt(k++);
             }
         }
     }
 
-    private String cleanPlainText(String pt) {
-        pt = pt.toUpperCase().replaceAll("[^A-Z]", "").replace('J', 'I');
-        StringBuilder sb = new StringBuilder(pt);
 
-        for (int i = 0; i < sb.length() - 1; i += 2) {
-            if (sb.charAt(i) == sb.charAt(i + 1)) {
-                sb.insert(i + 1, 'X'); 
+    static void printMatrix() {
+        System.out.println("\nPlayfair Matrix:");
+        for (int i = 0; i < 5; i++) {
+            for (int j = 0; j < 5; j++) {
+                System.out.print(matrix[i][j] + " ");
             }
+            System.out.println();
         }
-
-        if (sb.length() % 2 != 0) {
-            sb.append('Z'); 
-        }
-        return sb.toString();
     }
 
-    private int[] findPosition(char c) {
-        if (c == 'J') c = 'I';
+    
+    static int[] findPosition(char c) {
+        if (c == 'J')
+            c = 'I';
+
         for (int i = 0; i < 5; i++) {
             for (int j = 0; j < 5; j++) {
                 if (matrix[i][j] == c) {
@@ -80,54 +60,134 @@ public class PlayfairCipher {
                 }
             }
         }
+
         return null;
     }
 
-    public String encrypt() {
-        StringBuilder cipherText = new StringBuilder();
+    
+    static String prepareText(String text) {
+        text = text.toUpperCase().replaceAll("[^A-Z]", "");
+        text = text.replace('J', 'I');
 
-        for (int i = 0; i < plainText.length(); i += 2) {
-            char a = plainText.charAt(i);
-            char b = plainText.charAt(i + 1);
-            int[] posA = findPosition(a);
-            int[] posB = findPosition(b);
+        StringBuilder result = new StringBuilder();
 
-            int r1 = posA[0], c1 = posA[1];
-            int r2 = posB[0], c2 = posB[1];
+        int i = 0;
 
-            if (r1 == r2) { 
-                cipherText.append(matrix[r1][(c1 + 1) % 5]);
-                cipherText.append(matrix[r2][(c2 + 1) % 5]);
-            } else if (c1 == c2) { 
-                cipherText.append(matrix[(r1 + 1) % 5][c1]);
-                cipherText.append(matrix[(r2 + 1) % 5][c2]);
-            } else { 
-                cipherText.append(matrix[r1][c2]);
-                cipherText.append(matrix[r2][c1]);
+        while (i < text.length()) {
+            char a = text.charAt(i);
+
+            if (i + 1 == text.length()) {
+                result.append(a).append('X');
+                i++;
+            } else {
+                char b = text.charAt(i + 1);
+
+                if (a == b) {
+                    result.append(a).append('X');
+                    i++;
+                } else {
+                    result.append(a).append(b);
+                    i += 2;
+                }
             }
         }
-        return cipherText.toString();
+
+        return result.toString();
     }
 
-    public void printMatrix() {
-        System.out.println(" Playfair Key Matrix ");
-        for (int i = 0; i < 5; i++) {
-            for (int j = 0; j < 5; j++) {
-                System.out.print(matrix[i][j] + " ");
+    
+    static String processPair(char a, char b, boolean encrypt) {
+        int[] p1 = findPosition(a);
+        int[] p2 = findPosition(b);
+
+        int r1 = p1[0], c1 = p1[1];
+        int r2 = p2[0], c2 = p2[1];
+
+        
+        if (r1 == r2) {
+            if (encrypt) {
+                c1 = (c1 + 1) % 5;
+                c2 = (c2 + 1) % 5;
+            } else {
+                c1 = (c1 + 4) % 5;
+                c2 = (c2 + 4) % 5;
             }
-            System.out.println();
         }
-        System.out.println(" ");
+
+        
+        else if (c1 == c2) {
+            if (encrypt) {
+                r1 = (r1 + 1) % 5;
+                r2 = (r2 + 1) % 5;
+            } else {
+                r1 = (r1 + 4) % 5;
+                r2 = (r2 + 4) % 5;
+            }
+        }
+
+      
+        else {
+            int temp = c1;
+            c1 = c2;
+            c2 = temp;
+        }
+
+        return "" + matrix[r1][c1] + matrix[r2][c2];
+    }
+
+    
+    static String encrypt(String plaintext) {
+        plaintext = prepareText(plaintext);
+
+        StringBuilder encrypted = new StringBuilder();
+
+        for (int i = 0; i < plaintext.length(); i += 2) {
+            encrypted.append(
+                processPair(plaintext.charAt(i),
+                            plaintext.charAt(i + 1),
+                            true)
+            );
+        }
+
+        return encrypted.toString();
+    }
+
+    
+    static String decrypt(String ciphertext) {
+        ciphertext = ciphertext.toUpperCase().replaceAll("[^A-Z]", "");
+
+        StringBuilder decrypted = new StringBuilder();
+
+        for (int i = 0; i < ciphertext.length(); i += 2) {
+            decrypted.append(
+                processPair(ciphertext.charAt(i),
+                            ciphertext.charAt(i + 1),
+                            false)
+            );
+        }
+
+        return decrypted.toString();
     }
 
     public static void main(String[] args) {
-        String key = "MONARCHY";
-        String plaintext = "instruments";
 
-        PlayfairCipher cipher = new PlayfairCipher(key, plaintext);
-        
-        cipher.printMatrix();
-        System.out.println("Plaintext (Formatted): " + cipher.plainText);
-        System.out.println("Encrypted Text: " + cipher.encrypt());
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter key: ");
+        String key = sc.nextLine();
+
+        generateMatrix(key);
+        printMatrix();
+
+        System.out.print("\nEnter plaintext: ");
+        String plaintext = sc.nextLine();
+
+        String encrypted = encrypt(plaintext);
+        System.out.println("Encrypted Text: " + encrypted);
+
+        String decrypted = decrypt(encrypted);
+        System.out.println("Decrypted Text: " + decrypted);
+
+        sc.close();
     }
 }
