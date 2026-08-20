@@ -1,46 +1,36 @@
-import java.util.Scanner;
-public class caesar1 {
+public class CaesarCipher {
     public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
-        System.out.print("Enter the message: ");
-        String text = sc.nextLine();
-        System.out.print("Enter the key value: ");
-        int k = sc.nextInt();
-        System.out.print("Enter your choice (1-Encrypt, 2-Decrypt): ");
-        int choice = sc.nextInt();
-        String output = "";
-        switch (choice) {
-            case 1:
-                for (int i = 0; i < text.length(); i++) {
-                    char ch = text.charAt(i);
+        String message = "MEET AT GATE";
+        int shift = 3;
+        
+        String encrypted = "";
+        String decrypted = "";
 
-                    if (ch >= 'A' && ch <= 'Z') {
-                        ch = (char) ((ch - 'A' + k) % 26 + 'A');
-                    } else if (ch >= 'a' && ch <= 'z') {
-                        ch = (char) ((ch - 'a' + k) % 26 + 'a');
-                    }
-
-                    output += ch;
-                }
-                System.out.println("Encrypted message: " + output);
-                break;
-            case 2:
-                for (int i = 0; i < text.length(); i++) {
-                    char ch = text.charAt(i);
-
-                    if (ch >= 'A' && ch <= 'Z') {
-                        ch = (char) ((ch - 'A' - k + 26) % 26 + 'A');
-                    } else if (ch >= 'a' && ch <= 'z') {
-                        ch = (char) ((ch - 'a' - k + 26) % 26 + 'a');
-                    }
-
-                    output += ch;
-                }
-                System.out.println("Decrypted message: " + output);
-                break;
-
-            default:
-                System.out.println("Invalid choice");
+       
+        for (int i = 0; i < message.length(); i++) {
+            char c = message.charAt(i);
+            
+           
+            if (c != ' ') {
+                c = (char) (c + shift);
+            }
+            encrypted += c;
         }
+
+       
+        for (int i = 0; i < encrypted.length(); i++) {
+            char c = encrypted.charAt(i);
+            
+            if (c != ' ') {
+                c = (char) (c - shift);
+            }
+            decrypted += c;
+        }
+
+    
+
+        System.out.println("Original:  " + message);
+        System.out.println("Encrypted: " + encrypted);
+        System.out.println("Decrypted: " + decrypted);
     }
 }
