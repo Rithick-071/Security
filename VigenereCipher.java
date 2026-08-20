@@ -1,70 +1,38 @@
-public class VigenereCipher {
-    private String plainText;
-    private String key;
-
-    public VigenereCipher(String plainText, String key) {
-        this.plainText = plainText;
-        this.key = key;
-    }
-
-    private String cleanString(String str) {
-        return str.toUpperCase().replaceAll("[^A-Z]", "");
-    }
-
-    public String encrypt() {
-        String cleanPt = cleanString(plainText);
-        String cleanKey = cleanString(key);
-        StringBuilder cipherText = new StringBuilder();
-        
-        int keyLength = cleanKey.length();
-        for (int i = 0, j = 0; i < cleanPt.length(); i++) {
-            char c = cleanPt.charAt(i);
-            if (c >= 'A' && c <= 'Z') {
-                char k = cleanKey.charAt(j % keyLength);
-                char encrypted = (char) ((c + k - 2 * 'A') % 26 + 'A');
-                cipherText.append(encrypted);
-                j++;
-            } else {
-                cipherText.append(c);
-            }
-        }
-        return cipherText.toString();
-    }
-
-    public String decrypt(String cipherText) {
-        String cleanCt = cleanString(cipherText);
-        String cleanKey = cleanString(key);
-        StringBuilder decryptedText = new StringBuilder();
-        
-        int keyLength = cleanKey.length();
-        for (int i = 0, j = 0; i < cleanCt.length(); i++) {
-            char c = cleanCt.charAt(i);
-            if (c >= 'A' && c <= 'Z') {
-                char k = cleanKey.charAt(j % keyLength);
-                char decrypted = (char) ((c - k + 26) % 26 + 'A');
-                decryptedText.append(decrypted);
-                j++;
-            } else {
-                decryptedText.append(c);
-            }
-        }
-        return decryptedText.toString();
-    }
-
+public class vigne {
     public static void main(String[] args) {
-        String message = "meet at gate";
-        String secretKey = "lemon";
 
-        VigenereCipher cipher = new VigenereCipher(message, secretKey);
+        String plaintext = "WELCOME TO ALL";
+        String keyword = "YOU";
 
-        String encrypted = cipher.encrypt();
-        String decrypted = cipher.decrypt(encrypted);
+        String cleanText = plaintext.replace(" ", "").toUpperCase();
+        String upperKey = keyword.toUpperCase();
 
-        System.out.println("--- Vigenere Cipher Test ---");
-        System.out.println("Original Message: " + message);
-        System.out.println("Secret Key:       " + secretKey);
-        System.out.println("Encrypted Text:   " + encrypted);
-        System.out.println("Decrypted Text:   " + decrypted.toLowerCase());
-        
+        StringBuilder ciphertext = new StringBuilder();
+        int keyIndex = 0;
+
+        System.out.println("Plaintext:  " + plaintext);
+        System.out.println("Keyword:    " + keyword);
+        System.out.print("Ciphertext: ");
+
+        for (int i = 0; i < cleanText.length(); i++) {
+
+            char pChar = cleanText.charAt(i);
+
+            if (Character.isLetter(pChar)) {
+
+                char kChar = upperKey.charAt(keyIndex % upperKey.length());
+
+                int shift = kChar - 'A';
+
+                char encryptedChar =
+                    (char) ((pChar - 'A' + shift) % 26 + 'A');
+
+                ciphertext.append(encryptedChar);
+
+                keyIndex++;
+            }
+        }
+
+        System.out.println(ciphertext.toString());
     }
 }
