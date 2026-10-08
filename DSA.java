@@ -1,45 +1,51 @@
-import java.util.Scanner;
-import java.math.BigInteger;
+import java.security.*;
+
+import java.util.*;
 
 public class DSA {
 
-    public static void main(String[] args) {
+public static void main(String[] args) throws Exception {
 
-        Scanner sc = new Scanner(System.in);
+Scanner sc = new Scanner(System.in);
 
-        int p = 3;
-        int q = 11;
+System.out.print("Enter message: ");
 
-        int n = p * q;
-        int phi = (p - 1) * (q - 1);
+String msg = sc.nextLine();
 
-        int e = 7;
-        int d = 1;
+KeyPairGenerator kpg = KeyPairGenerator.getInstance("DSA");
 
-      
-        while ((d * e) % phi != 1) {
-            d++;
-        }
+kpg.initialize(2048);
 
-        System.out.println("Public Key = (" + e + ", " + n + ")");
-        System.out.println("Private Key = (" + d + ", " + n + ")");
+KeyPair kp = kpg.generateKeyPair();
 
-        System.out.print("Enter message (number): ");
-        int m = sc.nextInt();
+Signature sign = Signature.getInstance("SHA256withDSA");
 
-        BigInteger M = BigInteger.valueOf(m);
+sign.initSign(kp.getPrivate());
 
-        
-        BigInteger C = M.pow(e).mod(BigInteger.valueOf(n));
+sign.update(msg.getBytes());
 
-        System.out.println("Encrypted message = " + C);
+byte[] signature = sign.sign();
 
-        
-        BigInteger D = C.pow(d).mod(BigInteger.valueOf(n));
+System.out.println("Digital Signature: " +
 
-        System.out.println("Decrypted message = " + D);
+Base64.getEncoder().encodeToString(signature));
 
-        sc.close();
-    }
+Signature verify = Signature.getInstance("SHA256withDSA");
+
+verify.initVerify(kp.getPublic());
+
+verify.update(msg.getBytes());
+
+if (verify.verify(signature))
+
+System.out.println("Signature Verified Successfully");
+
+else
+
+System.out.println("Signature Verification Failed");
+
+sc.close();
+
 }
 
+} 
